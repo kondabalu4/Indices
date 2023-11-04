@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+
+class SparseMatrix {
+private:
+    int numRows; // Number of rows in the matrix
+    int numCols; // Number of columns in the matrix
+    std::vector<std::vector<int>> nonZeroElements; // Vector to store non-zero elements
+
+public:
+    // Constructor to initialize the matrix dimensions
+    SparseMatrix(int rows, int cols) : numRows(rows), numCols(cols) {}
+
+    // Function to add a non-zero element to the matrix
+    void addElement(int row, int col, int value) {
+        // Check if the indices are within the valid range
+        if (isValidIndex(row, col)) {
+            nonZeroElements.push_back({row, col, value}); // Add the element to the vector
+        } else {
+            throw std::out_of_range("Invalid row or column index"); // Throw an error for invalid indices
+        }
+    }
+
+    // Function to display the sparse matrix
+    void display() const {
+        std::cout << "Sparse Matrix (Row, Column, Value):" << std::endl;
+        for (const auto& element : nonZeroElements) {
+            std::cout << "(" << element[0] << ", " << element[1] << ", " << element[2] << ")" << std::endl;
+        }
+    }
+
+private:
+    // Function to check if the given indices are within the valid range
+    bool isValidIndex(int row, int col) const {
+        return row >= 0 && row < numRows && col >= 0 && col < numCols;
+    }
+};
+
+// Function to get input for the sparse matrix from the user
+SparseMatrix getInputSparseMatrix() {
+    int numRows, numCols, numNonZeroElements;
+
+    // Get the number of rows and columns from the user
+    std::cout << "Enter the number of rows of the matrix: ";
+    std::cin >> numRows;
+    std::cout << "Enter the number of columns of the matrix: ";
+    std::cin >> numCols;
+
+    SparseMatrix sparseMatrix(numRows, numCols); // Create a sparse matrix object
+
+    // Get the number of non-zero elements and their values from the user
+    std::cout << "Enter the number of non-zero elements of the matrix: ";
+    std::cin >> numNonZeroElements;
+
+    std::cout << "Enter non-zero elements in the format 'row column value':" << std::endl;
+    for (int i = 0; i < numNonZeroElements; ++i) {
+        int row, col, value;
+        std::cout << "Non-Zero Element " << i + 1 << ": ";
+        std::cin >> row >> col >> value;
+        sparseMatrix.addElement(row, col, value); // Add the non-zero element to the sparse matrix
+    }
+
+    return sparseMatrix;
+}
+
+int main() {
+    SparseMatrix sparseMatrix = getInputSparseMatrix(); // Get the input sparse matrix from the user
+    sparseMatrix.display(); // Display the sparse matrix
+    return 0;
+}
