@@ -1,0 +1,78 @@
+#include <iostream>
+
+// Node structure for the linked list
+struct Node {
+    int row;
+    int col;
+    int value;
+    Node* next;
+};
+
+class SparseMatrix {
+private:
+    Node* head; // Pointer to the head node of the linked list
+
+public:
+    // Constructor to initialize the linked list
+    SparseMatrix() : head(nullptr) {}
+
+    // adding a non-zero element to the sparse matrix
+    void addElement(int row, int col, int value) {
+        Node* newNode = new Node{row, col, value, nullptr}; // Create new node
+
+        if (!head) {
+            head = newNode; // If the list is empty, set the new node as the head
+        } else {
+            Node* temp = head;
+            while (temp->next) {
+                temp = temp->next; // Find the final node by going through the list
+            }
+            temp->next = newNode; // As the next node from the previous node, set the new node.
+        }
+    }
+
+    // Function to display the sparse matrix using linked list
+    void display() const {
+        Node* temp = head;
+        std::cout << "Sparse Matrix (Row, Column, Value):" << std::endl;
+        while (temp) {
+            std::cout << "(" << temp->row << ", " << temp->col << ", " << temp->value << ")" << std::endl;
+            temp = temp->next; // Go to the next node
+        }
+    }
+
+    // Destructor to free the memory occupied by the linked list
+    ~SparseMatrix() {
+        while (head) {
+            Node* temp = head;
+            head = head->next;
+            delete temp; // Delete the current node
+        }
+    }
+};
+
+int main() {
+    SparseMatrix sparseMatrix;
+
+    // Get input for the sparse matrix from the user
+    int numRows, numCols, numNonZeroElements;
+    std::cout << "Enter number of rows of the matrix: ";
+    std::cin >> numRows;
+    std::cout << "Enter number of columns of the matrix: ";
+    std::cin >> numCols;
+
+    std::cout << "Enter number of non-zero elements of the matrix: ";
+    std::cin >> numNonZeroElements;
+
+    std::cout << "Enter all the non-zero elements in the format 'row column value':" << std::endl;
+    for (int i = 0; i < numNonZeroElements; ++i) {
+        int row, col, value;
+        std::cin >> row >> col >> value;
+        sparseMatrix.addElement(row, col, value);
+    }
+
+    // Display the sparse matrix
+    sparseMatrix.display();
+
+    return 0;
+}
