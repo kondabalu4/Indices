@@ -1,6 +1,5 @@
 #include <iostream>
 
-// Node structure for the linked list
 struct Node {
     int row;
     int col;
@@ -10,38 +9,56 @@ struct Node {
 
 class SparseMatrix {
 private:
-    Node* head; // Pointer to the head node of the linked list
+    Node* head;
 
 public:
-    // Constructor to initialize the linked list
+    // Constructor for initializing the linked list
     SparseMatrix() : head(nullptr) {}
 
-    // adding a non-zero element to the sparse matrix
+    // Function for adding a non-zero element to sparse matrix
     void addElement(int row, int col, int value) {
-        Node* newNode = new Node{row, col, value, nullptr}; // Create new node
+        Node* newNode = new Node{row, col, value, nullptr}; // Create a new node
 
         if (!head) {
             head = newNode; // If the list is empty, set the new node as the head
         } else {
             Node* temp = head;
             while (temp->next) {
-                temp = temp->next; // Find the final node by going through the list
+                temp = temp->next; // Traverse the list to find the last node
             }
-            temp->next = newNode; // As the next node from the previous node, set the new node.
+            temp->next = newNode; // Set the new node as the next node of the last node
         }
     }
 
-    // Function to display the sparse matrix using linked list
-    void display() const {
+    // Function for generating and display the compact version of the sparse matrix
+    void generateCompactMatrix(int numRows, int numCols) {
+        int compactMatrix[numRows][numCols]; // Compact version of the sparse matrix
+
+        // Initializing compactmatrix with zeros
+        for (int i = 0; i < numRows; ++i) {
+            for (int j = 0; j < numCols; ++j) {
+                compactMatrix[i][j] = 0;
+            }
+        }
+
+        // Populate compactMatrix using the linked list
         Node* temp = head;
-        std::cout << "Sparse Matrix (Row, Column, Value):" << std::endl;
         while (temp) {
-            std::cout << "(" << temp->row << ", " << temp->col << ", " << temp->value << ")" << std::endl;
-            temp = temp->next; // Go to the next node
+            compactMatrix[temp->row][temp->col] = temp->value;
+            temp = temp->next; // Move to the next node
+        }
+
+        // Display the compact version of the sparse matrix
+        std::cout << "Compact Sparse Matrix:" << std::endl;
+        for (int i = 0; i < numRows; ++i) {
+            for (int j = 0; j < numCols; ++j) {
+                std::cout << compactMatrix[i][j] << " ";
+            }
+            std::cout << std::endl;
         }
     }
 
-    // Destructor to free the memory occupied by the linked list
+    // Destructor to free the memory the linked list was using
     ~SparseMatrix() {
         while (head) {
             Node* temp = head;
@@ -54,25 +71,24 @@ public:
 int main() {
     SparseMatrix sparseMatrix;
 
-    // Get input for the sparse matrix from the user
-    int numRows, numCols, numNonZeroElements;
-    std::cout << "Enter number of rows of the matrix: ";
+    int numRows, numCols, numElements;
+    std::cout << "Enter the number of rows: ";
     std::cin >> numRows;
-    std::cout << "Enter number of columns of the matrix: ";
+    std::cout << "Enter the number of columns: ";
     std::cin >> numCols;
 
-    std::cout << "Enter number of non-zero elements of the matrix: ";
-    std::cin >> numNonZeroElements;
+    std::cout << "Enter the number of non-zero elements: ";
+    std::cin >> numElements;
 
-    std::cout << "Enter all the non-zero elements in the format 'row column value':" << std::endl;
-    for (int i = 0; i < numNonZeroElements; ++i) {
+    std::cout << "Enter  the elements in the format 'row column value':" << std::endl;
+    for (int i = 0; i < numElements; ++i) {
         int row, col, value;
+        std::cout << "Element " << i + 1 << ": ";
         std::cin >> row >> col >> value;
         sparseMatrix.addElement(row, col, value);
     }
 
-    // Display the sparse matrix
-    sparseMatrix.display();
+    sparseMatrix.generateCompactMatrix(numRows, numCols);
 
     return 0;
 }
