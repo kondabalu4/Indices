@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <climits>
+using namespace std;
+
+// Function to print the path from the source to a given vertex
+void printPath(const vector<int> &prev, int j, int source) {
+    if (prev[j] == -1) {
+        cout << j;
+        return;
+    }
+    printPath(prev, prev[j], source);
+    if (j != source) {
+        cout << " -> ";
+    }
+    cout << j;
+}
+
+// Function to perform Dijkstra's algorithm
+void dijkstra(const vector<vector<int>> &graph, int source, int destination) {
+    int n = graph.size();
+    vector<int> dist(n, INT_MAX);       // Array to store the shortest distance from source to i
+    vector<bool> visited(n, false);    // Boolean array to mark visited nodes
+    vector<int> prev(n, -1);           // Array to store the previous node in the shortest path
+
+    dist[source] = 0;  // Distance from source to itself is 0
+
+    // Loop to find shortest path for all vertices
+    for (int count = 0; count < n - 1; ++count) {
+        int u = -1;
+        // Choose the vertex with the minimum distance from the set of vertices not yet processed
+        for (int i = 0; i < n; ++i) {
+            if (!visited[i] && (u == -1 || dist[i] < dist[u])) {
+                u = i;
+            }
+        }
+
+        visited[u] = true; // Mark the picked vertex as visited
+
+        // Update dist[v] if it's not visited, there's an edge from u to v, and total weight from source to v through u is smaller
+        for (int v = 0; v < n; ++v) {
+            if (graph[u][v] != 0 && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+                prev[v] = u;
+            }
+        }
+    }
+
+    // Output the cost of the shortest path from source to destination and print the shortest path
+    cout << "Cost of shortest path from node " << source << " to node " << destination << ": " << dist[destination] << endl;
+    cout << "Shortest path: ";
+    printPath(prev, destination, source);
+    cout << endl;
+}
+
+int main() {
+    // Graph represented as an adjacency matrix
+    vector<vector<int>> graph = {
+        // ... (graph representation)
+    };
+
+    int sNode, eNode;
+    cout << "Enter the starting node: ";
+    cin >> sNode;
+    cout << "Enter the ending node: ";
+    cin >> eNode;
+
+    int n = graph.size();
+    if (sNode < 0 || sNode >= n || eNode < 0 || eNode >= n) {
+        cout << "Invalid input node(s)!";
+        return 1;
+    }
+
+    dijkstra(graph, sNode, eNode);
+
+    return 0;
+}
