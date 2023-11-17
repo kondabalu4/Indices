@@ -29,7 +29,7 @@ void dijkstra(const vector<vector<int>> &graph, int source, int destination) {
     // Loop to find shortest path for all vertices
     for (int count = 0; count < n - 1; ++count) {
         int u = -1;
-        // Choose the vertex with the minimum distance from the set of vertices not yet processed
+        // Choose vertex with the minimum distance from set of vertices not yet processed
         for (int i = 0; i < n; ++i) {
             if (!visited[i] && (u == -1 || dist[i] < dist[u])) {
                 u = i;
@@ -47,7 +47,7 @@ void dijkstra(const vector<vector<int>> &graph, int source, int destination) {
         }
     }
 
-    // Output the cost of the shortest path from source to destination and print the shortest path
+    // Output the cost of the shortest path from source to the destination and print shortest path
     cout << "Cost of shortest path from node " << source << " to node " << destination << ": " << dist[destination] << endl;
     cout << "Shortest path: ";
     printPath(prev, destination, source);
