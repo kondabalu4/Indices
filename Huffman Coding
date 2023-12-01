@@ -62,7 +62,7 @@ void printHuffmanCodes(HuffmanNode* node, string code) {
     printHuffmanCodes(node->right, code + "1");
 }
 
-// Function to generate Huffman codes for given characters and frequencies
+// Function for generating Huffman codes for given characters and frequencies
 void generateHuffmanCodes(vector<char>& chars, vector<int>& frequencies) {
     HuffmanNode* root = buildHuffmanTree(chars, frequencies);
     cout << "Huffman Codes for characters:" << endl;
