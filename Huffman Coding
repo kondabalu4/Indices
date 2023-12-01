@@ -1,0 +1,78 @@
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+// Structure to represent nodes in the Huffman tree
+struct HuffmanNode {
+    char data;
+    int frequency;
+    HuffmanNode* left;
+    HuffmanNode* right;
+
+    // Constructor for the HuffmanNode
+    HuffmanNode(char char_, int freq_) : data(char_), frequency(freq_), left(nullptr), right(nullptr) {}
+
+    // Overloading the less than operator for priority queue
+    bool operator<(const HuffmanNode& other) const {
+        return frequency > other.frequency; // Prioritize based on frequency (lower frequency gets higher priority)
+    }
+};
+
+// Function to build the Huffman tree from characters and their frequencies
+HuffmanNode* buildHuffmanTree(vector<char>& chars, vector<int>& frequencies) {
+    priority_queue<HuffmanNode> minHeap;
+
+    // Create leaf nodes for each character and push them into the priority queue (min heap)
+    for (size_t i = 0; i < chars.size(); ++i) {
+        HuffmanNode* node = new HuffmanNode(chars[i], frequencies[i]);
+        minHeap.push(*node);
+    }
+
+    // Merge nodes until there is only one node left in the heap
+    while (minHeap.size() > 1) {
+        HuffmanNode* leftNode = new HuffmanNode(minHeap.top());
+        minHeap.pop();
+
+        HuffmanNode* rightNode = new HuffmanNode(minHeap.top());
+        minHeap.pop();
+
+        HuffmanNode* mergedNode = new HuffmanNode('\0', leftNode->frequency + rightNode->frequency);
+        mergedNode->left = leftNode;
+        mergedNode->right = rightNode;
+
+        minHeap.push(*mergedNode);
+    }
+
+    // Return the root node of the Huffman tree
+    HuffmanNode* rootNode = new HuffmanNode(minHeap.top());
+    return rootNode;
+}
+
+// Function to print the Huffman codes for each character in the tree
+void printHuffmanCodes(HuffmanNode* node, string code) {
+    if (node->left == nullptr && node->right == nullptr) {
+        cout << node->data << ": " << code << endl;
+        return;
+    }
+
+    // Traverse the tree recursively to print codes
+    printHuffmanCodes(node->left, code + "0");
+    printHuffmanCodes(node->right, code + "1");
+}
+
+// Function to generate Huffman codes for given characters and frequencies
+void generateHuffmanCodes(vector<char>& chars, vector<int>& frequencies) {
+    HuffmanNode* root = buildHuffmanTree(chars, frequencies);
+    cout << "Huffman Codes for characters:" << endl;
+    printHuffmanCodes(root, "");
+}
+
+int main() {
+    vector<char> chars = {'a', 'b', 'c', 'd', 'e', 'f'};
+    vector<int> frequencies = {5, 9, 12, 13, 16, 45};
+    generateHuffmanCodes(chars, frequencies);
+
+    return 0;
+}
