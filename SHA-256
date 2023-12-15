@@ -2,9 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-using namespace std;
+#include <cstdint>
 
-const uint32_t K[] = {
+constexpr uint32_t K[] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
     0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -26,58 +26,47 @@ uint32_t H[] = {
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
-uint32_t rotateRight(uint32_t x, uint32_t n)
-{
+uint32_t rotateRight(uint32_t x, uint32_t n) {
     return (x >> n) | (x << (32 - n));
 }
 
-uint32_t choose(uint32_t x, uint32_t y, uint32_t z)
-{
+uint32_t choose(uint32_t x, uint32_t y, uint32_t z) {
     return (x & y) ^ (~x & z);
 }
 
-uint32_t majority(uint32_t x, uint32_t y, uint32_t z)
-{
+uint32_t majority(uint32_t x, uint32_t y, uint32_t z) {
     return (x & y) ^ (x & z) ^ (y & z);
 }
 
-uint32_t sigmaZero(uint32_t x)
-{
+uint32_t sigmaZero(uint32_t x) {
     return rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
 }
 
-uint32_t sigmaOne(uint32_t x)
-{
+uint32_t sigmaOne(uint32_t x) {
     return rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25);
 }
 
-uint32_t gammaZero(uint32_t x)
-{
+uint32_t gammaZero(uint32_t x) {
     return rotateRight(x, 7) ^ rotateRight(x, 18) ^ (x >> 3);
 }
 
-uint32_t gammaOne(uint32_t x)
-{
+uint32_t gammaOne(uint32_t x) {
     return rotateRight(x, 17) ^ rotateRight(x, 19) ^ (x >> 10);
 }
 
-string sha256(const string &message)
-{
+std::string sha256(const std::string &message) {
     size_t bitLength = message.length() * 8;
-    string paddedMessage = message + (char)0x80;
-    while ((paddedMessage.length() * 8 + 64) % 512 != 0)
-    {
+    std::string paddedMessage = message + (char)0x80;
+    while ((paddedMessage.length() * 8 + 64) % 512 != 0) {
         paddedMessage += (char)0x00;
     }
-    paddedMessage += string((char *)&bitLength, sizeof(bitLength));
+    paddedMessage += std::string((char *)&bitLength, sizeof(bitLength));
 
     size_t i = 0;
-    while (i < paddedMessage.length())
-    {
+    while (i < paddedMessage.length()) {
         uint32_t block[64] = {0};
         size_t j = 0;
-        while (j < 16)
-        {
+        while (j < 16) {
             block[j] = ((uint32_t)paddedMessage[i + j * 4] << 24) |
                        ((uint32_t)paddedMessage[i + j * 4 + 1] << 16) |
                        ((uint32_t)paddedMessage[i + j * 4 + 2] << 8) |
@@ -85,8 +74,7 @@ string sha256(const string &message)
             j++;
         }
         j = 16;
-        while (j < 64)
-        {
+        while (j < 64) {
             block[j] = gammaOne(block[j - 2]) + block[j - 7] + gammaZero(block[j - 15]) + block[j - 16];
             j++;
         }
@@ -94,65 +82,50 @@ string sha256(const string &message)
         uint32_t a = H[0], b = H[1], c = H[2], d = H[3],
                  e = H[4], f = H[5], g = H[6], h = H[7];
         j = 0;
-        while (j < 64)
-        {
+        while (j < 64) {
             uint32_t temp1 = h + sigmaOne(e) + choose(e, f, g) + K[j] + block[j];
             uint32_t temp2 = sigmaZero(a) + majority(a, b, c);
-            h = g;
-            g = f;
-            f = e;
-            e = d + temp1;
-            d = c;
-            c = b;
-            b = a;
-            a = temp1 + temp2;
+            h = g; g = f; f = e; e = d + temp1; d = c; c = b; b = a; a = temp1 + temp2;
             j++;
         }
 
-        H[0] += a;
-        H[1] += b;
-        H[2] += c;
-        H[3] += d;
-        H[4] += e;
-        H[5] += f;
-        H[6] += g;
-        H[7] += h;
+        H[0] += a; H[1] += b; H[2] += c; H[3] += d;
+        H[4] += e; H[5] += f; H[6] += g; H[7] += h;
 
         i += 64;
     }
 
-    string hashValue;
+    std::string hashValue;
     size_t k = 0;
-    while (k < 8)
-    {
+    while (k < 8) {
         uint32_t h = H[k];
-        hashValue += string((char *)&h, sizeof(h));
+        hashValue += std::string((char *)&h, sizeof(h));
         k++;
     }
     return hashValue;
 }
 
-int main()
-{
-    ifstream file("book_of_mark.txt");
-    if (!file.is_open())
-    {
-        cout << "File not found or couldn't be opened." << endl;
+int main() {
+    std::ifstream file("book_of_mark.txt");
+    if (!file.is_open()) {
+        std::cout << "File not found or couldn't be opened." << std::endl;
         return 1;
     }
 
-    stringstream buffer;
+    std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
 
-    string message = buffer.str();
-    string hashValue = sha256(message);
+    std::string message = buffer.str();
+    std::string hashValue = sha256(message);
 
-    cout << "Hash value: " << endl;
-    for (size_t i = 0; i < hashValue.length(); i++)
-    {
+    std::cout << "Hash value: " << std::endl;
+    for (size_t i = 0; i < hashValue.length(); i++) {
         printf("%02x", (unsigned char)hashValue[i]);
     }
-    cout << endl;
+    std::cout << std::endl;
     return 0;
 }
+
+SHA_256 Hash code for the entire book of Mark is 9fc4f5e6e227995aa9eb2d08630edbd9e7a9b18422f976e32b5d201e84b5b65c
+
