@@ -26,92 +26,89 @@ uint32_t H[] = {
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
-uint32_t rotr(uint32_t x, uint32_t n)
+uint32_t rotateRight(uint32_t x, uint32_t n)
 {
     return (x >> n) | (x << (32 - n));
 }
 
-uint32_t ch(uint32_t x, uint32_t y, uint32_t z)
+uint32_t choose(uint32_t x, uint32_t y, uint32_t z)
 {
     return (x & y) ^ (~x & z);
 }
 
-uint32_t maj(uint32_t x, uint32_t y, uint32_t z)
+uint32_t majority(uint32_t x, uint32_t y, uint32_t z)
 {
     return (x & y) ^ (x & z) ^ (y & z);
 }
 
-uint32_t sigma0(uint32_t x)
+uint32_t sigmaZero(uint32_t x)
 {
-    return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22);
+    return rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
 }
 
-uint32_t sigma1(uint32_t x)
+uint32_t sigmaOne(uint32_t x)
 {
-    return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
+    return rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25);
 }
 
-uint32_t gamma0(uint32_t x)
+uint32_t gammaZero(uint32_t x)
 {
-    return rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3);
+    return rotateRight(x, 7) ^ rotateRight(x, 18) ^ (x >> 3);
 }
 
-uint32_t gamma1(uint32_t x)
+uint32_t gammaOne(uint32_t x)
 {
-    return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
+    return rotateRight(x, 17) ^ rotateRight(x, 19) ^ (x >> 10);
 }
 
-string sha256(const string &msg)
+string sha256(const string &message)
 {
-    // padding
-    size_t bit_len = msg.length() * 8;
-    string padded_msg = msg + (char)0x80;
-    while ((padded_msg.length() * 8 + 64) % 512 != 0)
+    size_t bitLength = message.length() * 8;
+    string paddedMessage = message + (char)0x80;
+    while ((paddedMessage.length() * 8 + 64) % 512 != 0)
     {
-        padded_msg += (char)0x00;
+        paddedMessage += (char)0x00;
     }
-    padded_msg += string((char *)&bit_len, sizeof(bit_len));
+    paddedMessage += string((char *)&bitLength, sizeof(bitLength));
 
     size_t i = 0;
-    while (i < padded_msg.length())
+    while (i < paddedMessage.length())
     {
-        uint32_t x[64] = {0};
+        uint32_t block[64] = {0};
         size_t j = 0;
         while (j < 16)
         {
-            x[j] = ((uint32_t)padded_msg[i + j * 4] << 24) |
-                   ((uint32_t)padded_msg[i + j * 4 + 1] << 16) |
-                   ((uint32_t)padded_msg[i + j * 4 + 2] << 8) |
-                   ((uint32_t)padded_msg[i + j * 4 + 3]);
+            block[j] = ((uint32_t)paddedMessage[i + j * 4] << 24) |
+                       ((uint32_t)paddedMessage[i + j * 4 + 1] << 16) |
+                       ((uint32_t)paddedMessage[i + j * 4 + 2] << 8) |
+                       ((uint32_t)paddedMessage[i + j * 4 + 3]);
             j++;
         }
         j = 16;
         while (j < 64)
         {
-            x[j] = gamma1(x[j - 2]) + x[j - 7] + gamma0(x[j - 15]) + x[j - 16];
+            block[j] = gammaOne(block[j - 2]) + block[j - 7] + gammaZero(block[j - 15]) + block[j - 16];
             j++;
         }
 
-        // compression
         uint32_t a = H[0], b = H[1], c = H[2], d = H[3],
                  e = H[4], f = H[5], g = H[6], h = H[7];
         j = 0;
         while (j < 64)
         {
-            uint32_t T1 = h + sigma1(e) + ch(e, f, g) + K[j] + x[j];
-            uint32_t T2 = sigma0(a) + maj(a, b, c);
+            uint32_t temp1 = h + sigmaOne(e) + choose(e, f, g) + K[j] + block[j];
+            uint32_t temp2 = sigmaZero(a) + majority(a, b, c);
             h = g;
             g = f;
             f = e;
-            e = d + T1;
+            e = d + temp1;
             d = c;
             c = b;
             b = a;
-            a = T1 + T2;
+            a = temp1 + temp2;
             j++;
         }
 
-        // hash values update
         H[0] += a;
         H[1] += b;
         H[2] += c;
@@ -124,15 +121,15 @@ string sha256(const string &msg)
         i += 64;
     }
 
-    string hash_value;
+    string hashValue;
     size_t k = 0;
     while (k < 8)
     {
         uint32_t h = H[k];
-        hash_value += string((char *)&h, sizeof(h));
+        hashValue += string((char *)&h, sizeof(h));
         k++;
     }
-    return hash_value;
+    return hashValue;
 }
 
 int main()
@@ -144,17 +141,17 @@ int main()
         return 1;
     }
 
-    stringstream buff;
-    buff << file.rdbuf();
+    stringstream buffer;
+    buffer << file.rdbuf();
     file.close();
 
-    string message = buff.str();
-    string hash_value = sha256(message);
+    string message = buffer.str();
+    string hashValue = sha256(message);
 
     cout << "Hash value: " << endl;
-    for (size_t i = 0; i < hash_value.length(); i++)
+    for (size_t i = 0; i < hashValue.length(); i++)
     {
-        printf("%02x", (unsigned char)hash_value[i]);
+        printf("%02x", (unsigned char)hashValue[i]);
     }
     cout << endl;
     return 0;
