@@ -124,7 +124,7 @@ string sha256(const string &msg)
         i += 64;
     }
 
-    string hash_value;ciuld vvv
+    string hash_value;
     size_t k = 0;
     while (k < 8)
     {
@@ -134,9 +134,16 @@ string sha256(const string &msg)
     }
     return hash_value;
 }
+
 int main()
 {
     ifstream file("book_of_mark.txt");
+    if (!file.is_open())
+    {
+        cout << "File not found or couldn't be opened." << endl;
+        return 1;
+    }
+
     stringstream buff;
     buff << file.rdbuf();
     file.close();
