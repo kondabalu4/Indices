@@ -5,16 +5,18 @@
 #include <iomanip>
 #include <cstdint>
 
-const uint32_t K[] = {
+// Constants for SHA-256 algorithm
+const uint32_t K[64] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
     // ... (rest of the K constants)
 };
 
-uint32_t H[] = {
+uint32_t H[8] = {
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     // ... (rest of the initial hash values)
 };
 
+// Functions for bitwise operations
 uint32_t rotr(uint32_t x, uint32_t n) {
     return (x >> n) | (x << (32 - n));
 }
@@ -25,6 +27,7 @@ uint32_t ch(uint32_t x, uint32_t y, uint32_t z) {
 
 // ... (rest of the helper functions)
 
+// Function to compute SHA-256 hash
 std::string sha256(const std::string &msg) {
     size_t bit_len = msg.length() * 8;
     std::string padded_msg = msg + (char)0x80;
@@ -35,6 +38,7 @@ std::string sha256(const std::string &msg) {
 
     padded_msg += std::string((char *)&bit_len, sizeof(bit_len));
 
+    // Processing padded message in blocks of 512 bits
     size_t i = 0;
     while (i < padded_msg.length()) {
         uint32_t x[64] = {0};
@@ -42,6 +46,7 @@ std::string sha256(const std::string &msg) {
         // ... (rest of the message parsing and processing)
     }
 
+    // Constructing the final hash value
     std::string hash_value;
     size_t k = 0;
     while (k < 8) {
@@ -59,17 +64,22 @@ int main() {
         return 1;
     }
 
+    // Reading contents of the file into a stringstream
     std::stringstream buff;
     buff << file.rdbuf();
     file.close();
 
+    // Getting the message from the stringstream
     std::string message = buff.str();
+
+    // Computing the SHA-256 hash
     std::string hash_value = sha256(message);
 
+    // Displaying the hash value
     std::cout << "Hash value: " << std::endl;
     for (size_t i = 0; i < hash_value.length(); i++) {
         std::cout << std::hex << std::setw(2) << std::setfill('0')
-                  << (unsigned int)(unsigned char)hash_value[i];
+                  << static_cast<unsigned int>(static_cast<unsigned char>(hash_value[i]));
     }
     std::cout << std::endl;
 
