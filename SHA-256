@@ -127,5 +127,4 @@ int main() {
     return 0;
 }
 
-SHA_256 Hash code for the entire book of Mark is 9fc4f5e6e227995aa9eb2d08630edbd9e7a9b18422f976e32b5d201e84b5b65c
 
