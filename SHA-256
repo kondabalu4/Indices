@@ -1,22 +1,27 @@
-#include <openssl/sha.h>
 #include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <string>
+#include <openssl/sha.h>
+#include <cstring>
 
-std::string sha256(const std::string& data) {
+// Function to compute the SHA-256 hash of an input string
+std::string sha256(const std::string& input) {
     unsigned char hash[SHA256_DIGEST_LENGTH]; // Buffer to hold the hash
-    SHA256_CTX sha256;
+    SHA256_CTX sha256; // SHA-256 context structure
+
+    // Initialize the SHA-256 context
     SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data.c_str(), data.size());
+
+    // Update the SHA-256 context with the input data
+    SHA256_Update(&sha256, input.c_str(), input.length());
+
+    // Finalize the SHA-256 hash and store it in the 'hash' buffer
     SHA256_Final(hash, &sha256);
 
-    // Convert the hash to a hex string
+    // Convert the binary hash to a hexadecimal string representation
     std::stringstream ss;
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
     }
-    return ss.str();
+    return ss.str(); // Return the computed SHA-256 hash as a string
 }
 
 int main() {
@@ -1060,8 +1065,12 @@ So then the Lord Jesus, after he had spoken to them, was taken up into heaven, a
 
 
 [20] And they went forth and preached everywhere, while the Lord worked with them and confirmed the message by the signs that attended it. Amen.
-)"; // Replace with your text
-    std::string hash_result = sha256(text);
-    std::cout << "SHA-256 Hash: " << hash_result << std::endl;
+ )"; // Replace this with the actual text you want to hash
+
+    // Compute the SHA-256 hash of the given text
+    std::string hash = sha256(text);
+
+    // Display the computed SHA-256 hash
+    std::cout << "SHA-256 Hash: " << hash << std::endl;
     return 0;
 }
